@@ -1,0 +1,21 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="MCMaps.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="x" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">51</Value>
+    </Setting>
+    <Setting Name="y" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">129</Value>
+    </Setting>
+    <Setting Name="h" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">16</Value>
+    </Setting>
+    <Setting Name="thresholdBottom" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">224</Value>
+    </Setting>
+    <Setting Name="thresholdTop" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">224</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
