@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
-namespace MCMaps
+﻿namespace MCMaps
 {
+    using System;
+    using System.Windows.Forms;
+
     public partial class UserControl2 : UserControl
     {
         public UserControl2()
@@ -50,11 +43,11 @@ namespace MCMaps
                 int thresholdBottom = trackBar1.Value;
 
                 Form1 myParent = (Form1)this.Parent;
-                myParent.x = x;
-                myParent.y = y;
-                myParent.height = h;
-                myParent.thresholdTop = thresholdTop;
-                myParent.thresholdBottom = thresholdBottom;
+                myParent.X = x;
+                myParent.Y = y;
+                myParent.Height = h;
+                myParent.ThresholdTop = thresholdTop;
+                myParent.ThresholdBottom = thresholdBottom;
             }
             catch
             {

@@ -1,55 +1,40 @@
-﻿using Patagames.Ocr;
-using Patagames.Ocr.Enums;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
-namespace MCMaps
+﻿namespace MCMaps
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Drawing;
+    using System.Drawing.Imaging;
+    using System.IO;
+    using System.Runtime.InteropServices;
+    using System.Threading.Tasks;
+    using System.Windows.Forms;
+    using Patagames.Ocr;
+    using Patagames.Ocr.Enums;
+
     public partial class Form1 : Form
     {
-        UserControl1 mapUC = new UserControl1();
+        private UserControl1 mapUC = new UserControl1();
 
-
-        UserControl2 settingsUC = new UserControl2();
+        private UserControl2 settingsUC = new UserControl2();
 
         private List<Image> LoadedImages { get; set; }
 
+        public List<string> FilePaths = new List<string>();
 
-        public List<string> filePaths = new List<string>();
+        public static Bitmap Image = null;
 
+        public List<Coordinates> CoordList = new List<Coordinates>();
 
-        public static Bitmap image = null;
+        public int X = 0;
 
-        public class Coordinates
-        {
-            public Point point { get; set; }
+        public int Y = 0;
 
-            public string path { get; set; }
-        }
+        public int Height = 0;
 
+        public int ThresholdTop = 0;
 
-        public List<Coordinates> coordList = new List<Coordinates>();
-
-        public int x = 0;
-
-        public int y = 0;
-
-        public int height = 0;
-
-        public int thresholdTop = 0;
-
-        public int thresholdBottom = 0;
+        public int ThresholdBottom = 0;
 
         public Form1()
         {
@@ -85,7 +70,7 @@ namespace MCMaps
                 var selectedIndex = listView1.SelectedIndices[0];
                 var img = new Bitmap(LoadedImages[LoadedImages.Count - 1 - selectedIndex]);
 
-                Rectangle rect = new Rectangle(x, y, 499, height);
+                Rectangle rect = new Rectangle(X, Y, 499, Height);
                 Bitmap imgCropped = img.Clone(rect, img.PixelFormat);
                 img.Dispose();
 
@@ -100,7 +85,7 @@ namespace MCMaps
 
                 for (int i = 0; i < imglength - 2; i += 4)
                 {
-                    if ((img_bytes[i + 2] >= thresholdBottom && img_bytes[i + 1] >= thresholdBottom && img_bytes[i] >= thresholdBottom) && (img_bytes[i + 2] <= thresholdTop && img_bytes[i + 1] <= thresholdTop && img_bytes[i] <= thresholdTop))
+                    if ((img_bytes[i + 2] >= ThresholdBottom && img_bytes[i + 1] >= ThresholdBottom && img_bytes[i] >= ThresholdBottom) && (img_bytes[i + 2] <= ThresholdTop && img_bytes[i + 1] <= ThresholdTop && img_bytes[i] <= ThresholdTop))
                     {
                         img_out_bytes[i + 2] = 0;
                         img_out_bytes[i + 1] = 0;
@@ -125,7 +110,9 @@ namespace MCMaps
                 debug.Text = "Last calculation time: " + timer.ElapsedMilliseconds + " ms. or " + Math.Round(timer.Elapsed.TotalSeconds, 3) + " s.";
             }
             else
+            {
                 MessageBox.Show("Image is not selected", "Error");
+            }
         }
 
         private void bGetText_Click(object sender, EventArgs e)//gets text
@@ -159,12 +146,21 @@ namespace MCMaps
                             if (ch != ' ')
                             {
                                 if (i == 0)
+                                {
                                     x += ch;
+                                }
+
                                 if (i == 4)
+                                {
                                     y += ch;
+                                }
                             }
-                            else i++;
+                            else
+                            {
+                                i++;
+                            }
                         }
+
                         if (x == null || y == null)
                         {
                             img.Dispose();
@@ -172,11 +168,12 @@ namespace MCMaps
                             timer.Stop();
                             return;
                         }
+
                         int intx = Convert.ToInt32(Convert.ToDouble(x));
                         int inty = Convert.ToInt32(Convert.ToDouble(y));
                         Point newPoint = new Point(intx, inty);
-                        Coordinates newCoord = new Coordinates() { point = newPoint, path = filePaths[LoadedImages.Count - 1 - selectedIndex] };
-                        coordList.Add(newCoord);
+                        Coordinates newCoord = new Coordinates() { Point = newPoint, Path = FilePaths[LoadedImages.Count - 1 - selectedIndex] };
+                        CoordList.Add(newCoord);
                     }
                     catch
                     {
@@ -186,19 +183,20 @@ namespace MCMaps
                         MessageBox.Show("Tesseract.Net.SDK error.\nProbably forgot to crop...", "Error");
                         return;
                     }
+
                     textBox1.Text = returnText;
                 }
-                img.Dispose();
 
-                //adding to list
-                
+                img.Dispose();
 
                 this.Cursor = Cursors.Default;
                 timer.Stop();
                 debug.Text = "Last calculation time: " + timer.ElapsedMilliseconds + " ms. or " + Math.Round(timer.Elapsed.TotalSeconds, 3) + " s.";
             }
             else
+            {
                 MessageBox.Show("Image is not selected", "Error");
+            }
         }
 
         private void processBatchToolStripMenuItem_Click(object sender, EventArgs e)//batch processing start
@@ -213,7 +211,7 @@ namespace MCMaps
 
                 var selectedDirectory = folderBrowser.SelectedPath;
                 var imagePaths = Directory.GetFiles(selectedDirectory);
-                
+
                 //foreach (string path in imagePaths)
                 //{
                 //    process(path);
@@ -244,7 +242,7 @@ namespace MCMaps
                 return;
             }
 
-            Rectangle rect = new Rectangle(x, y, 499, height);  
+            Rectangle rect = new Rectangle(X, Y, 499, Height);
             Bitmap imgCropped = img.Clone(rect, PixelFormat.Format32bppRgb);
             img.Dispose();
 
@@ -260,7 +258,7 @@ namespace MCMaps
 
             for (int i = 0; i < imglength - 3; i += 4)
             {
-                if ((img_bytes[i + 2] >= thresholdBottom && img_bytes[i + 1] >= thresholdBottom && img_bytes[i] >= thresholdBottom) && (img_bytes[i + 2] <= thresholdTop && img_bytes[i + 1] <= thresholdTop && img_bytes[i] <= thresholdTop))
+                if ((img_bytes[i + 2] >= ThresholdBottom && img_bytes[i + 1] >= ThresholdBottom && img_bytes[i] >= ThresholdBottom) && (img_bytes[i + 2] <= ThresholdTop && img_bytes[i + 1] <= ThresholdTop && img_bytes[i] <= ThresholdTop))
                 {
                     img_out_bytes[i + 2] = 0;
                     img_out_bytes[i + 1] = 0;
@@ -295,24 +293,34 @@ namespace MCMaps
                         if (ch != ' ')
                         {
                             if (i == 0)
+                            {
                                 x += ch;
+                            }
+
                             if (i == 4)
+                            {
                                 y += ch;
+                            }
                         }
-                        else i++;
+                        else
+                        {
+                            i++;
+                        }
                     }
+
                     if (x == null || y == null)
                     {
                         img.Dispose();
                         this.Cursor = Cursors.Default;
                         return;
                     }
+
                     int intx = Convert.ToInt32(Convert.ToDouble(x));
                     int inty = Convert.ToInt32(Convert.ToDouble(y));
                     Point newPoint = new Point(intx, inty);
-                    Coordinates newCoord = new Coordinates() { point = newPoint, path = path };
-                    filePaths.Add(path);
-                    coordList.Add(newCoord);
+                    Coordinates newCoord = new Coordinates() { Point = newPoint, Path = path };
+                    FilePaths.Add(path);
+                    CoordList.Add(newCoord);
                 }
                 catch
                 {
@@ -320,6 +328,7 @@ namespace MCMaps
                     return;
                 }
             }
+
             img_out.Dispose();
         }
 
@@ -330,18 +339,22 @@ namespace MCMaps
 
             var selectedIndex = listView1.SelectedIndices[0];
             int invertedIndex = LoadedImages.Count - 1 - selectedIndex;
-            filePaths.Add(filePaths[invertedIndex - 1]);
+            FilePaths.Add(FilePaths[invertedIndex - 1]);
             listView1.Items.Clear();
 
             ImageList images = new ImageList();
             images.ImageSize = new Size(80, 45);
             foreach (var image in LoadedImages)
+            {
                 images.Images.Add(image);
+            }
 
             listView1.LargeImageList = images;
 
             for (int itemIndex = LoadedImages.Count - 1; itemIndex >= 0; --itemIndex)
+            {
                 listView1.Items.Add(new ListViewItem($"Image {itemIndex}", itemIndex));
+            }
 
             this.Cursor = Cursors.Default;
         }
@@ -362,11 +375,16 @@ namespace MCMaps
                     images.ImageSize = new Size(80, 45);
 
                     foreach (var image in LoadedImages)
+                    {
                         images.Images.Add(image);
+                    }
+
                     listView1.LargeImageList = images;
 
                     for (int itemIndex = LoadedImages.Count - 1; itemIndex >= 0; --itemIndex)
+                    {
                         listView1.Items.Add(new ListViewItem($"Image {itemIndex}", itemIndex));
+                    }
                 }
             }
             else
@@ -385,11 +403,16 @@ namespace MCMaps
                     images.ImageSize = new Size(80, 45);
 
                     foreach (var image in LoadedImages)
+                    {
                         images.Images.Add(image);
+                    }
+
                     listView1.LargeImageList = images;
 
                     for (int itemIndex = LoadedImages.Count - 1; itemIndex >= 0; --itemIndex)
+                    {
                         listView1.Items.Add(new ListViewItem($"Image {itemIndex}", itemIndex));
+                    }
                 }
             }
         }
@@ -406,20 +429,24 @@ namespace MCMaps
                     try
                     {
                         string path = folderBrowser.FileName;
-                        var tempImage = Image.FromFile(path);
+                        var tempImage = System.Drawing.Image.FromFile(path);
                         LoadedImages.Add(tempImage);
-                        filePaths.Add(path);
+                        FilePaths.Add(path);
 
                         ImageList images = new ImageList();
                         images.ImageSize = new Size(80, 45);
 
                         foreach (var image in LoadedImages)
+                        {
                             images.Images.Add(image);
+                        }
 
                         listView1.LargeImageList = images;
 
                         for (int itemIndex = LoadedImages.Count - 1; itemIndex >= 0; --itemIndex)
+                        {
                             listView1.Items.Add(new ListViewItem($"Image {itemIndex}", itemIndex));
+                        }
                     }
                     catch
                     {
@@ -437,9 +464,9 @@ namespace MCMaps
                     try
                     {
                         string path = folderBrowser.FileName;
-                        var tempImage = Image.FromFile(path);
+                        var tempImage = System.Drawing.Image.FromFile(path);
                         LoadedImages.Add(tempImage);
-                        filePaths.Add(path);
+                        FilePaths.Add(path);
 
                         listView1.Items.Clear();
 
@@ -447,12 +474,16 @@ namespace MCMaps
 
                         images.ImageSize = new Size(80, 45);
                         foreach (var image in LoadedImages)
+                        {
                             images.Images.Add(image);
+                        }
 
                         listView1.LargeImageList = images;
 
                         for (int itemIndex = LoadedImages.Count - 1; itemIndex >= 0; --itemIndex)
+                        {
                             listView1.Items.Add(new ListViewItem($"Image {itemIndex}", itemIndex));
+                        }
                     }
                     catch
                     {
@@ -469,9 +500,9 @@ namespace MCMaps
             {
                 foreach (var path in paths)
                 {
-                    var tempImage = Image.FromFile(path);
+                    var tempImage = System.Drawing.Image.FromFile(path);
                     LoadedImages.Add(tempImage);
-                    filePaths.Add(path);
+                    FilePaths.Add(path);
                 }
             }
             catch
@@ -496,8 +527,10 @@ namespace MCMaps
 
         private void pictureBox2_Click_1(object sender, EventArgs e)//copies coordinates to clipboard
         {
-            if (textBox1.Text != "")
-                System.Windows.Forms.Clipboard.SetText(textBox1.Text);
+            if (textBox1.Text != string.Empty)
+            {
+                Clipboard.SetText(textBox1.Text);
+            }
         }
 
         private byte[] GetRGBValues(Bitmap bmp)//converts Bitmap to byte[]
@@ -505,8 +538,8 @@ namespace MCMaps
 
             // Lock the bitmap's bits. 
             Rectangle rect = new Rectangle(0, 0, bmp.Width, bmp.Height);
-            System.Drawing.Imaging.BitmapData bmpData =
-             bmp.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadOnly,
+            BitmapData bmpData =
+             bmp.LockBits(rect, ImageLockMode.ReadOnly,
              bmp.PixelFormat);
 
             // Get the address of the first line.
@@ -517,7 +550,7 @@ namespace MCMaps
             byte[] rgbValues = new byte[bytes];
 
             // Copy the RGB values into the array.
-            System.Runtime.InteropServices.Marshal.Copy(ptr, rgbValues, 0, bytes); bmp.UnlockBits(bmpData);
+            Marshal.Copy(ptr, rgbValues, 0, bytes); bmp.UnlockBits(bmpData);
 
             return rgbValues;
         }
@@ -529,7 +562,7 @@ namespace MCMaps
                 img.PixelFormat);
             Marshal.Copy(bytes, 0, data.Scan0, bytes.Length);
 
-            img.UnlockBits(data); 
+            img.UnlockBits(data);
         }
 
         private void mapToolStripMenuItem_Click(object sender, EventArgs e)//opens map tab
@@ -563,7 +596,9 @@ namespace MCMaps
         private void copyToolStripMenuItem_Click(object sender, EventArgs e)//saves image
         {
             if (pictureBox1.Image != null)
-                System.Windows.Forms.Clipboard.SetImage(pictureBox1.Image);
+            {
+                Clipboard.SetImage(pictureBox1.Image);
+            }
         }
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)//deletes item
@@ -575,7 +610,7 @@ namespace MCMaps
                 int selectedIndex = listView1.SelectedIndices[0];
                 int invertedIndex = LoadedImages.Count - 1 - listView1.SelectedIndices[0];
 
-                filePaths.RemoveAt(invertedIndex);
+                FilePaths.RemoveAt(invertedIndex);
                 LoadedImages.RemoveAt(invertedIndex);
                 listView1.Items.RemoveAt(selectedIndex);
             }
@@ -589,31 +624,31 @@ namespace MCMaps
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)//saves user settings
         {
-            Properties.Settings.Default.x = x;
-            Properties.Settings.Default.y = y;
-            Properties.Settings.Default.h = height;
-            Properties.Settings.Default.thresholdTop = thresholdTop;
-            Properties.Settings.Default.thresholdBottom = thresholdBottom;
+            Properties.Settings.Default.x = X;
+            Properties.Settings.Default.y = Y;
+            Properties.Settings.Default.h = Height;
+            Properties.Settings.Default.thresholdTop = ThresholdTop;
+            Properties.Settings.Default.thresholdBottom = ThresholdBottom;
 
             Properties.Settings.Default.Save();
         }
 
         public void GetSettings()//loads user settings
         {
-            x = Properties.Settings.Default.x;
-            y = Properties.Settings.Default.y;
-            height = Properties.Settings.Default.h;
-            thresholdTop = Properties.Settings.Default.thresholdTop;
-            thresholdBottom = Properties.Settings.Default.thresholdBottom;
+            X = Properties.Settings.Default.x;
+            Y = Properties.Settings.Default.y;
+            Height = Properties.Settings.Default.h;
+            ThresholdTop = Properties.Settings.Default.thresholdTop;
+            ThresholdBottom = Properties.Settings.Default.thresholdBottom;
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)//saves user settings
         {
-            Properties.Settings.Default.x = x;
-            Properties.Settings.Default.y = y;
-            Properties.Settings.Default.h = height;
-            Properties.Settings.Default.thresholdTop = thresholdTop;
-            Properties.Settings.Default.thresholdBottom = thresholdBottom;
+            Properties.Settings.Default.x = X;
+            Properties.Settings.Default.y = Y;
+            Properties.Settings.Default.h = Height;
+            Properties.Settings.Default.thresholdTop = ThresholdTop;
+            Properties.Settings.Default.thresholdBottom = ThresholdBottom;
 
             Properties.Settings.Default.Save();
             this.Close();

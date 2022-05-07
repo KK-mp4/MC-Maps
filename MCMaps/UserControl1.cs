@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
-namespace MCMaps
+﻿namespace MCMaps
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Drawing;
+    using System.IO;
+    using System.Windows.Forms;
+
     public partial class UserControl1 : UserControl
     {
         private Bitmap map = null;
@@ -45,12 +40,15 @@ namespace MCMaps
                 markerList.Remove(markerList[i]);
                 pathList.RemoveAt(i);
             }
+
             markerList.Clear();
             pathList.Clear();
 
             Form1 myParent = (Form1)this.Parent;
-            for (int i = 0; i < myParent.coordList.Count; ++i)
-                MakePictureBox(myParent.coordList[i].point, i);
+            for (int i = 0; i < myParent.CoordList.Count; ++i)
+            {
+                MakePictureBox(myParent.CoordList[i].Point, i);
+            }
         }
 
         private void MakePictureBox(Point point, int index)//renders markers
@@ -70,22 +68,30 @@ namespace MCMaps
                 int originalYmax = Convert.ToInt32(zmax.Text);
 
                 Size result = GetDisplayedImageSize(pictureBox1);
-                float mapXperX = ((float)(originalXmax - originalXmin) / result.Width);
-                float mapYperY = ((float)(originalYmax - originalYmin) / result.Height);
-                int x = Convert.ToInt32(((float)(point.X - originalXmin) / mapXperX) - (float)newMarker.Width / 2);
-                int y = Convert.ToInt32(((float)(point.Y - originalYmin) / mapYperY) - (float)newMarker.Height / 2);
+                float mapXperX = (float)(originalXmax - originalXmin) / result.Width;
+                float mapYperY = (float)(originalYmax - originalYmin) / result.Height;
+                int x = Convert.ToInt32(((float)(point.X - originalXmin) / mapXperX) - ((float)newMarker.Width / 2));
+                int y = Convert.ToInt32(((float)(point.Y - originalYmin) / mapYperY) - ((float)newMarker.Height / 2));
 
                 if (result.Width < pictureBox1.Width)
+                {
                     x += Convert.ToInt32((float)(pictureBox1.Width - result.Width) / 2);
+                }
 
                 if (result.Height < pictureBox1.Height)
+                {
                     y += Convert.ToInt32((float)(pictureBox1.Height - result.Height) / 2);
+                }
 
                 if (x > result.Width || x < 0)
+                {
                     return;
+                }
 
                 if (y > result.Height || y < 0)
+                {
                     return;
+                }
 
                 newMarker.Location = new Point(x, y);
 
@@ -94,13 +100,13 @@ namespace MCMaps
                 markerList.Add(newMarker);
                 this.Controls.Add(newMarker);
                 Form1 myParent = (Form1)this.Parent;
-                pathList.Add(myParent.coordList[index].path);
+                pathList.Add(myParent.CoordList[index].Path);
                 newMarker.BringToFront();
             }
             catch
             {
                 MessageBox.Show("Mistake in coordinate system input", "Error");
-            }     
+            }
         }
 
         private void newMarker_Click(object sender, EventArgs e)//loads selected marker image path
@@ -118,9 +124,12 @@ namespace MCMaps
             using (StreamWriter writer = new StreamWriter(@"..\..\..\marker_data.txt"))
             {
                 Form1 myParent = (Form1)this.Parent;
-                for (int i = 0; i < myParent.coordList.Count; ++i)
-                    writer.WriteLine($"{myParent.coordList[i].path}\t{myParent.coordList[i].point}");
+                for (int i = 0; i < myParent.CoordList.Count; ++i)
+                {
+                    writer.WriteLine($"{myParent.CoordList[i].Path}\t{myParent.CoordList[i].Point}");
+                }
             }
+
             this.Cursor = Cursors.Default;
         }
 
@@ -144,6 +153,7 @@ namespace MCMaps
                 result.Height = containerSize.Height;
                 result.Width = (int)((1.0f / imageAspectRatio) * (float)containerSize.Height);
             }
+
             return result;
         }
 
